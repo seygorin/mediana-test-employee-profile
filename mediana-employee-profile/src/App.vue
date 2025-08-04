@@ -1,7 +1,20 @@
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import {onMounted, provide} from 'vue'
+import {useFormData} from './composables/api/useFormData'
+import {ProfileLayout} from './components/layout'
+import {ProfileForm} from './components/profile'
+
+const formDataComposable = useFormData()
+
+provide('formData', formDataComposable)
+
+onMounted(() => {
+  formDataComposable.fetchData()
+})
+</script>
 
 <template>
-	<h1>Hello World</h1>
+  <ProfileLayout>
+    <ProfileForm />
+  </ProfileLayout>
 </template>
-
-<style scoped></style>
