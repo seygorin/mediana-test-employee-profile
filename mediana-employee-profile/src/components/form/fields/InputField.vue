@@ -30,7 +30,7 @@ const inputType = computed(() => {
 
 <template>
   <BaseField :field="field" v-model="value">
-    <template #default="{fieldId, isValid, errorMessage, isRequired}">
+    <template #default="{fieldId, isValid}">
       <input
         :id="fieldId"
         v-model="value"

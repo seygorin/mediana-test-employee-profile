@@ -2,41 +2,6 @@ import {ref, computed, readonly} from 'vue'
 import {apiClient, transformApiFormData} from '../../api'
 import type {FormData} from '@/types'
 
-export interface ApiError {
-  message: string
-  code?: string | number
-  details?: unknown
-}
-
-export interface ApiField {
-  type: string
-  label: string
-  placeholder: string
-  value: string | string[]
-  required: number
-  items?: Record<string, string> | string[]
-}
-
-export interface ApiBlock {
-  [key: string]: ApiField
-}
-
-export interface ApiGroup {
-  title: string
-  blocks: Record<string, ApiBlock | ApiField[]>
-  experience?: ApiField
-  subjects?: ApiField
-}
-
-export interface ApiFormData {
-  groups: {
-    personal: ApiGroup
-    contact: ApiGroup
-    experience: ApiGroup
-    research: ApiField[]
-  }
-}
-
 export function useFormData() {
   const data = ref<FormData | null>(null)
   const isLoading = ref(false)

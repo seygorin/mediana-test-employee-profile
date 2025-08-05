@@ -1,11 +1,16 @@
 <script setup lang="ts">
-import {inject} from 'vue'
+import {inject, provide} from 'vue'
+import {useFormValidation} from '@/composables/form/useFormValidation'
 import LoadingState from '../ui/LoadingState.vue'
 import ErrorState from '../ui/ErrorState.vue'
 import ProfileTabs from './ProfileTabs.vue'
 import ProfileActions from './ProfileActions.vue'
 
 const formData = inject('formData') as any
+
+const formValidation = useFormValidation(formData?.data)
+
+provide('formValidation', formValidation)
 </script>
 
 <template>
@@ -19,7 +24,7 @@ const formData = inject('formData') as any
 
   <div v-else-if="formData?.hasData.value">
     <ProfileTabs />
-    <ProfileActions />
+    <ProfileActions :form-validation="formValidation" />
   </div>
 
   <div v-else class="text-center py-5">

@@ -1,5 +1,5 @@
 <script setup lang="ts" generic="T extends Field">
-import {computed, ref, watch} from 'vue'
+import {computed, ref, watch, inject, onMounted, onUnmounted} from 'vue'
 import type {Field} from '@/types'
 import {useValidation} from '@/composables/form/useValidation'
 
@@ -18,6 +18,8 @@ const props = withDefaults(defineProps<Props>(), {
 })
 
 const emit = defineEmits<Emits>()
+
+const formValidation = inject('formValidation') as any
 
 const internalValue = ref(props.modelValue ?? props.field.value)
 
@@ -43,12 +45,40 @@ const fieldId = computed(
   () => `field-${props.field.label.replace(/\s+/g, '-').toLowerCase()}`
 )
 
+const fieldKey = computed(() => `${props.field.type}-${props.field.label}`)
+
 const reactiveField = computed(() => ({
   ...props.field,
   value: internalValue.value,
 }))
 
 const {isValid, errorMessage, isRequired} = useValidation(reactiveField)
+
+watch(
+  [isValid, errorMessage],
+  ([valid, error]) => {
+    if (formValidation?.registerField) {
+      formValidation.registerField(fieldKey.value, valid, error)
+    }
+  },
+  {immediate: true}
+)
+
+onMounted(() => {
+  if (formValidation?.registerField) {
+    formValidation.registerField(
+      fieldKey.value,
+      isValid.value,
+      errorMessage.value
+    )
+  }
+})
+
+onUnmounted(() => {
+  if (formValidation?.unregisterField) {
+    formValidation.unregisterField(fieldKey.value)
+  }
+})
 </script>
 
 <template>

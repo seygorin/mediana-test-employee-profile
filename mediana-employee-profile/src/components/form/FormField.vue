@@ -1,11 +1,19 @@
 <script setup lang="ts">
-import {computed} from 'vue'
-import type {Field} from '@/types'
-import InputField from './fields/InputField.vue'
-import SelectField from './fields/SelectField.vue'
-import RadioField from './fields/RadioField.vue'
-import CheckboxField from './fields/CheckboxField.vue'
-import DateField from './fields/DateField.vue'
+import { computed } from 'vue'
+import type {
+  Field,
+  InputField,
+  SelectField,
+  RadioField,
+  CheckboxField,
+  DateField,
+} from '@/types'
+
+import InputFieldComponent from './fields/InputField.vue'
+import SelectFieldComponent from './fields/SelectField.vue'
+import RadioFieldComponent from './fields/RadioField.vue'
+import CheckboxFieldComponent from './fields/CheckboxField.vue'
+import DateFieldComponent from './fields/DateField.vue'
 
 interface Props {
   field: Field
@@ -19,23 +27,51 @@ interface Emits {
 const props = defineProps<Props>()
 const emit = defineEmits<Emits>()
 
-const componentMap = {
-  input: InputField,
-  select: SelectField,
-  radio: RadioField,
-  checkboxlist: CheckboxField,
-  date: DateField,
-} as const
+const stringValue = computed({
+  get: () => {
+    const val = props.modelValue ?? props.field.value
+    return Array.isArray(val) ? val.join(', ') : String(val)
+  },
+  set: (newVal: string) => emit('update:modelValue', newVal),
+})
 
-const FieldComponent = computed(() => componentMap[props.field.type])
-
-const value = computed({
-  get: () => props.modelValue ?? props.field.value,
-  set: (newValue) => emit('update:modelValue', newValue),
+const arrayValue = computed({
+  get: () => {
+    const val = props.modelValue ?? props.field.value
+    return Array.isArray(val) ? val : []
+  },
+  set: (newVal: string[]) => emit('update:modelValue', newVal),
 })
 </script>
 
 <template>
-  <component :is="FieldComponent" :field="field" v-model="value" />
-</template>
+  <InputFieldComponent
+    v-if="field.type === 'input'"
+    :field="field as InputField"
+    v-model="stringValue"
+  />
 
+  <SelectFieldComponent
+    v-else-if="field.type === 'select'"
+    :field="field as SelectField"
+    v-model="stringValue"
+  />
+
+  <RadioFieldComponent
+    v-else-if="field.type === 'radio'"
+    :field="field as RadioField"
+    v-model="stringValue"
+  />
+
+  <CheckboxFieldComponent
+    v-else-if="field.type === 'checkboxlist'"
+    :field="field as CheckboxField"
+    v-model="arrayValue"
+  />
+
+  <DateFieldComponent
+    v-else-if="field.type === 'date'"
+    :field="field as DateField"
+    v-model="stringValue"
+  />
+</template>

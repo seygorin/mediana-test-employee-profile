@@ -9,15 +9,3 @@ export interface ErrorState {
   code?: string | number
 }
 
-export type ButtonVariant =
-  | 'primary'
-  | 'secondary'
-  | 'success'
-  | 'danger'
-  | 'warning'
-  | 'info'
-  | 'light'
-  | 'dark'
-  | 'outline-primary'
-  | 'outline-secondary'
-export type ButtonSize = 'sm' | 'lg'

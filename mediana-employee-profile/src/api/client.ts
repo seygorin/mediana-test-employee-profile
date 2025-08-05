@@ -1,10 +1,13 @@
-import type {ApiResponse, ApiFormData} from '@types'
+import type {ApiResponse, ApiFormData} from '@/types'
+import {MOCK_DATA} from './mock-data'
 
 class ApiClient {
   private baseURL: string
+  private useMockData: boolean
 
-  constructor(baseURL: string = '') {
+  constructor(baseURL: string = '', useMockData: boolean = true) {
     this.baseURL = baseURL
+    this.useMockData = useMockData
   }
 
   private async request<T>(
@@ -35,7 +38,26 @@ class ApiClient {
   }
 
   async getFormData(): Promise<ApiResponse<ApiFormData>> {
+    if (this.useMockData) {
+      console.log('Mock data...')
+      await new Promise((resolve) => setTimeout(resolve, 500))
+
+      return {
+        data: MOCK_DATA,
+        error: null,
+      }
+    }
+
+    console.log('API data...')
     return this.request<ApiFormData>('/api/')
+  }
+
+  setUseMockData(useMock: boolean) {
+    this.useMockData = useMock
+  }
+
+  getUseMockData(): boolean {
+    return this.useMockData
   }
 }
 

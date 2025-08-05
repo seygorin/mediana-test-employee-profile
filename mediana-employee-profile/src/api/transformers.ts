@@ -1,10 +1,11 @@
 import type {
   ApiFormData,
-  ApiField,
   ApiGroup,
+  ApiField,
   FormData,
   FormGroup,
   Field,
+  FormBlock,
 } from '@/types'
 
 export function transformApiField(apiField: ApiField): Field {
@@ -33,7 +34,7 @@ export function transformApiField(apiField: ApiField): Field {
         ...baseField,
         type: 'radio' as const,
         value: String(apiField.value),
-        items: Array.isArray(apiField.items) ? apiField.items : [],
+        items: (apiField.items as string[]) || [],
       }
     case 'checkboxlist':
       return {
@@ -49,18 +50,20 @@ export function transformApiField(apiField: ApiField): Field {
         value: String(apiField.value),
       }
     default:
-      throw new Error(`Unknown field type: ${apiField.type}`)
+      return {
+        ...baseField,
+        type: 'input' as const,
+        value: String(apiField.value),
+      }
   }
 }
 
 export function transformApiGroup(apiGroup: ApiGroup): FormGroup {
-  const blocks: Record<string, any> = {}
+  const blocks: Record<string, FormBlock> = {}
 
   Object.entries(apiGroup.blocks).forEach(([blockId, block]) => {
-    if (Array.isArray(block)) {
-      blocks[blockId] = block
-    } else {
-      const transformedBlock: Record<string, Field> = {}
+    if (!Array.isArray(block)) {
+      const transformedBlock: FormBlock = {}
       Object.entries(block).forEach(([fieldId, field]) => {
         transformedBlock[fieldId] = transformApiField(field)
       })
@@ -73,23 +76,31 @@ export function transformApiGroup(apiGroup: ApiGroup): FormGroup {
     blocks,
   }
 
-  if (apiGroup.experience) {
-    result.experience = transformApiField(apiGroup.experience)
-  }
-  if (apiGroup.subjects) {
-    result.subjects = transformApiField(apiGroup.subjects)
-  }
+  Object.entries(apiGroup).forEach(([key, value]) => {
+    if (
+      key !== 'title' &&
+      key !== 'blocks' &&
+      value &&
+      typeof value === 'object' &&
+      'type' in value
+    ) {
+      result[key] = transformApiField(value as ApiField)
+    }
+  })
 
   return result
 }
 
 export function transformApiFormData(apiData: ApiFormData): FormData {
-  return {
-    groups: {
-      personal: transformApiGroup(apiData.groups.personal),
-      contact: transformApiGroup(apiData.groups.contact),
-      experience: transformApiGroup(apiData.groups.experience),
-      research: apiData.groups.research || [],
-    },
-  }
+  const groups: Record<string, FormGroup | Field[]> = {}
+
+  Object.entries(apiData.groups).forEach(([groupKey, groupData]) => {
+    if (Array.isArray(groupData)) {
+      groups[groupKey] = groupData.map((field) => transformApiField(field))
+    } else {
+      groups[groupKey] = transformApiGroup(groupData)
+    }
+  })
+
+  return {groups}
 }

@@ -49,15 +49,9 @@ export interface FormBlock {
 export interface FormGroup {
   title: string
   blocks: Record<string, FormBlock | Field[]>
-  experience: Field
-  subjects: Field
+	[key: string]: any
 }
 
 export interface FormData {
-  groups: {
-    personal: FormGroup
-    contact: FormGroup
-    experience: FormGroup
-    research: Field[]
-  }
+  groups: Record<string, FormGroup | Field[]>
 }
