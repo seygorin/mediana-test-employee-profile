@@ -1,2 +1,13 @@
-# Vue 3 + TypeScript + Vite
+# mediana-employee-profile
 
+## Project setup
+
+```
+npm install
+```
+
+## Compiles and hot-reloads for development
+
+```
+npm run dev
+```
